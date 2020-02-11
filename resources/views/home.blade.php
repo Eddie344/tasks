@@ -1,5 +1,5 @@
 @extends('layouts.app')
 
 @section('content')
-    <tasks-component></tasks-component>
+    <tasks-component :auth="{{ Auth::id()  }}"></tasks-component>
 @endsection

@@ -13,5 +13,5 @@
 
 Auth::routes();
 
-Route::view('/', 'home');
+Route::view('/', 'home')->middleware('auth');
 
