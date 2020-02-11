@@ -18,7 +18,7 @@ class TaskController extends Controller
      */
     public function index()
     {
-        return Task::with('comments')->get();
+        return Task::with('comments.user')->get();
     }
 
     /**
@@ -30,7 +30,7 @@ class TaskController extends Controller
     public function store(Request $request)
     {
         $task = Task::create($request->task);
-        return response()->json($task, 201);
+        return response()->json($task->load('comments.user'), 201);
     }
 
     /**
@@ -54,7 +54,7 @@ class TaskController extends Controller
     public function update(Request $request, Task $task)
     {
         $task->update($request->task);
-        return response()->json($task, 200);
+        return response()->json($task->load('comments.user'), 200);
     }
 
     /**

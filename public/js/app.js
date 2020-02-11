@@ -1982,6 +1982,9 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "TasksComponent",
   props: ['auth'],
@@ -1995,7 +1998,11 @@ __webpack_require__.r(__webpack_exports__);
         status_id: null,
         user_id: this.auth
       },
-      editingTask: {}
+      editingTask: {},
+      editingTaskNotDirtyStatus: null,
+      newComment: {
+        text: ''
+      }
     };
   },
   computed: {
@@ -2045,8 +2052,13 @@ __webpack_require__.r(__webpack_exports__);
       this.newTask.title = this.newTask.description = '';
       this.newTask.status_id = null;
     },
+    resetEditingTask: function resetEditingTask() {
+      this.editingTask.title = this.editingTask.description = '';
+      this.editingTask.status_id = this.editingTask.id = null;
+    },
     editModalShow: function editModalShow(task) {
       this.editingTask = Object.assign({}, task);
+      this.editingTaskNotDirtyStatus = this.editingTask.status_id;
       this.$bvModal.show('editTask');
     },
     editTask: function editTask() {
@@ -2059,7 +2071,24 @@ __webpack_require__.r(__webpack_exports__);
           return item.id === response.data.id;
         }), 1, response.data);
 
-        _this4.$bvModal.hide('editTask');
+        _this4.editingTaskNotDirtyStatus = response.data.status_id;
+      })["catch"](function (error) {
+        console.log(error);
+      });
+    },
+    createComment: function createComment() {
+      var _this5 = this;
+
+      axios.post('api/comments', {
+        comment: {
+          text: this.newComment.text,
+          user_id: this.auth,
+          task_id: this.editingTask.id
+        }
+      }).then(function (response) {
+        _this5.editingTask.comments.unshift(response.data);
+
+        _this5.newComment.text = '';
       })["catch"](function (error) {
         console.log(error);
       });
@@ -72026,7 +72055,7 @@ var render = function() {
               staticClass: "btn btn-primary",
               attrs: { type: "button" }
             },
-            [_vm._v("\n            Add task\n        ")]
+            [_vm._v("\n                Add task\n            ")]
           ),
           _vm._v(" "),
           _c(
@@ -72177,182 +72206,219 @@ var render = function() {
         1
       ),
       _vm._v(" "),
-      _c("div", { staticClass: "row" }, [
-        _c("div", { staticClass: "col-sm-4" }, [
-          _c("div", { staticClass: "card" }, [
-            _c("h5", { staticClass: "card-header" }, [_vm._v("To do")]),
-            _vm._v(" "),
-            _c(
-              "div",
-              { staticClass: "list-group list-group-flush" },
-              _vm._l(_vm.tasks, function(task) {
-                return task.status_id === 1
-                  ? _c(
-                      "a",
-                      {
-                        staticClass: "list-group-item list-group-item-action",
-                        attrs: { href: "#" },
-                        on: {
-                          click: function($event) {
-                            return _vm.editModalShow(task)
+      _c(
+        "div",
+        { staticClass: "row" },
+        _vm._l(_vm.statuses, function(status) {
+          return _c("div", { staticClass: "col-sm-4" }, [
+            _c("div", { staticClass: "card mb-3" }, [
+              _c(
+                "h5",
+                { staticClass: "card-header", class: "border-" + status.color },
+                [_vm._v(_vm._s(status.title))]
+              ),
+              _vm._v(" "),
+              _c(
+                "div",
+                { staticClass: "list-group list-group-flush" },
+                _vm._l(_vm.tasks, function(task) {
+                  return task.status_id === status.id
+                    ? _c(
+                        "button",
+                        {
+                          staticClass: "list-group-item list-group-item-action",
+                          class: {
+                            "list-group-item-primary":
+                              task.id === _vm.editingTask.id
+                          },
+                          attrs: { type: "button" },
+                          on: {
+                            click: function($event) {
+                              return _vm.editModalShow(task)
+                            }
                           }
-                        }
-                      },
-                      [
-                        _vm._v(
-                          "\n                        " +
-                            _vm._s(task.title) +
-                            "\n                        "
-                        ),
-                        _c("p", { staticClass: "card-text" }, [
-                          _c("small", { staticClass: "text-muted" }, [
-                            _vm._v("Comments: " + _vm._s(task.comments.length))
+                        },
+                        [
+                          _vm._v(
+                            "\n                            " +
+                              _vm._s(task.title) +
+                              "\n                            "
+                          ),
+                          _c("p", { staticClass: "card-text" }, [
+                            _c("small", { staticClass: "text-muted" }, [
+                              _vm._v(
+                                "Comments: " + _vm._s(task.comments.length)
+                              )
+                            ])
                           ])
-                        ])
-                      ]
-                    )
-                  : _vm._e()
-              }),
-              0
-            )
+                        ]
+                      )
+                    : _vm._e()
+                }),
+                0
+              )
+            ])
           ])
-        ]),
-        _vm._v(" "),
-        _c("div", { staticClass: "col-sm-4" }, [
-          _c("div", { staticClass: "card" }, [
-            _c("h5", { staticClass: "card-header" }, [_vm._v("Doing")]),
-            _vm._v(" "),
-            _c(
-              "ul",
-              { staticClass: "list-group list-group-flush" },
-              _vm._l(_vm.tasks, function(task) {
-                return task.status_id === 2
-                  ? _c("li", { staticClass: "list-group-item" }, [
-                      _vm._v(
-                        "\n                        " +
-                          _vm._s(task.title) +
-                          "\n                        "
-                      ),
-                      _c("p", { staticClass: "card-text" }, [
-                        _c("small", { staticClass: "text-muted" }, [
-                          _vm._v("Comments: " + _vm._s(task.comments.length))
-                        ])
-                      ])
-                    ])
-                  : _vm._e()
-              }),
-              0
-            )
-          ])
-        ]),
-        _vm._v(" "),
-        _c("div", { staticClass: "col-sm-4" }, [
-          _c("div", { staticClass: "card" }, [
-            _c("h5", { staticClass: "card-header" }, [_vm._v("Done")]),
-            _vm._v(" "),
-            _c(
-              "ul",
-              { staticClass: "list-group list-group-flush" },
-              _vm._l(_vm.tasks, function(task) {
-                return task.status_id === 3
-                  ? _c("li", { staticClass: "list-group-item" }, [
-                      _vm._v(
-                        "\n                        " +
-                          _vm._s(task.title) +
-                          "\n                        "
-                      ),
-                      _c("p", { staticClass: "card-text" }, [
-                        _c("small", { staticClass: "text-muted" }, [
-                          _vm._v("Comments: " + _vm._s(task.comments.length))
-                        ])
-                      ])
-                    ])
-                  : _vm._e()
-              }),
-              0
-            )
-          ])
-        ])
-      ]),
+        }),
+        0
+      ),
       _vm._v(" "),
       _c(
         "b-modal",
         {
-          attrs: { id: "editTask", title: "Editing task" },
-          scopedSlots: _vm._u([
-            {
-              key: "modal-footer",
-              fn: function(ref) {
-                var cancel = ref.cancel
-                var ok = ref.ok
-                return [
-                  _c(
-                    "button",
-                    {
-                      staticClass: "btn btn-secondary",
-                      attrs: { type: "button", "data-dismiss": "modal" },
+          attrs: { id: "editTask", title: "Editing task", "hide-footer": "" },
+          on: { hide: _vm.resetEditingTask }
+        },
+        [
+          _c(
+            "div",
+            { staticClass: "py-3" },
+            [
+              _c("h6", [_vm._v("Title:")]),
+              _vm._v(" "),
+              _c("p", [_vm._v(_vm._s(_vm.editingTask.title))]),
+              _vm._v(" "),
+              _c("h6", [_vm._v("Description:")]),
+              _vm._v(" "),
+              _c("p", [_vm._v(_vm._s(_vm.editingTask.description))]),
+              _vm._v(" "),
+              _vm._l(_vm.statuses, function(status) {
+                return _c(
+                  "div",
+                  { staticClass: "form-check form-check-inline" },
+                  [
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.editingTask.status_id,
+                          expression: "editingTask.status_id"
+                        }
+                      ],
+                      staticClass: "form-check-input",
+                      attrs: {
+                        type: "radio",
+                        name: "inlineRadioOptions",
+                        id: "status" + status.id
+                      },
+                      domProps: {
+                        value: status.id,
+                        checked: _vm._q(_vm.editingTask.status_id, status.id)
+                      },
                       on: {
-                        click: function($event) {
-                          return cancel()
+                        change: function($event) {
+                          return _vm.$set(
+                            _vm.editingTask,
+                            "status_id",
+                            status.id
+                          )
                         }
                       }
-                    },
-                    [_vm._v("Close")]
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "button",
-                    {
-                      staticClass: "btn btn-primary",
-                      attrs: { type: "button" },
-                      on: { click: _vm.editTask }
-                    },
-                    [_vm._v("Save")]
-                  )
-                ]
-              }
-            }
-          ])
-        },
-        _vm._l(_vm.statuses, function(status) {
-          return _c("div", { staticClass: "form-check form-check-inline" }, [
-            _c("input", {
-              directives: [
+                    }),
+                    _vm._v(" "),
+                    _c(
+                      "label",
+                      {
+                        staticClass: "form-check-label",
+                        attrs: { for: "status" + status.id }
+                      },
+                      [_vm._v(_vm._s(status.title))]
+                    )
+                  ]
+                )
+              }),
+              _vm._v(" "),
+              _c(
+                "button",
                 {
-                  name: "model",
-                  rawName: "v-model",
-                  value: _vm.editingTask.status_id,
-                  expression: "editingTask.status_id"
+                  staticClass: "btn btn-primary",
+                  attrs: {
+                    type: "button",
+                    disabled:
+                      _vm.editingTask.status_id ===
+                      _vm.editingTaskNotDirtyStatus
+                  },
+                  on: { click: _vm.editTask }
+                },
+                [_vm._v("Save")]
+              )
+            ],
+            2
+          ),
+          _vm._v(" "),
+          _c("div", { staticClass: "py-3" }, [
+            _c("div", { staticClass: "form-group" }, [
+              _c("label", { attrs: { for: "newComment" } }, [
+                _c("h6", [_vm._v("Add comment:")])
+              ]),
+              _vm._v(" "),
+              _c("textarea", {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.newComment.text,
+                    expression: "newComment.text"
+                  }
+                ],
+                staticClass: "form-control",
+                attrs: { id: "newComment", rows: "3" },
+                domProps: { value: _vm.newComment.text },
+                on: {
+                  input: function($event) {
+                    if ($event.target.composing) {
+                      return
+                    }
+                    _vm.$set(_vm.newComment, "text", $event.target.value)
+                  }
                 }
-              ],
-              staticClass: "form-check-input",
-              attrs: {
-                type: "radio",
-                name: "inlineRadioOptions",
-                id: "status" + status.id
-              },
-              domProps: {
-                value: status.id,
-                checked: _vm._q(_vm.editingTask.status_id, status.id)
-              },
-              on: {
-                change: function($event) {
-                  return _vm.$set(_vm.editingTask, "status_id", status.id)
-                }
-              }
-            }),
+              })
+            ]),
             _vm._v(" "),
             _c(
-              "label",
+              "button",
               {
-                staticClass: "form-check-label",
-                attrs: { for: "status" + status.id }
+                staticClass: "btn btn-primary",
+                attrs: {
+                  type: "button",
+                  disabled: !_vm.newComment.text.length
+                },
+                on: { click: _vm.createComment }
               },
-              [_vm._v(_vm._s(status.title))]
+              [_vm._v("Add")]
+            )
+          ]),
+          _vm._v(" "),
+          _c("div", [
+            _c(
+              "div",
+              { staticClass: "list-group list-group-flush" },
+              _vm._l(_vm.editingTask.comments, function(comment) {
+                return _c("div", { staticClass: "list-group-item" }, [
+                  _c("p", { staticClass: "mb-1 text-wrap" }, [
+                    _vm._v(_vm._s(comment.text))
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    { staticClass: "d-flex w-100 justify-content-between" },
+                    [
+                      _c("small", { staticClass: "text-muted" }, [
+                        _vm._v(_vm._s(comment.user.name))
+                      ]),
+                      _vm._v(" "),
+                      _c("small", { staticClass: "text-muted" }, [
+                        _vm._v(_vm._s(comment.created_at))
+                      ])
+                    ]
+                  )
+                ])
+              }),
+              0
             )
           ])
-        }),
-        0
+        ]
       )
     ],
     1

@@ -13,13 +13,16 @@ class TaskStatusesTableSeeder extends Seeder
     {
         DB::table('task_statuses')->insert([
             [
-                'title' => 'To do'
+                'title' => 'To do',
+                'color' => 'danger'
             ],
             [
-                'title' => 'Doing'
+                'title' => 'Doing',
+                'color' => 'warning'
             ],
             [
-                'title' => 'Done'
+                'title' => 'Done',
+                'color' => 'success'
             ]
         ]);
     }
